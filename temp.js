@@ -26,7 +26,8 @@ getStuff().then(data => {
   console.log("Total Sales of the Store : ", totalSalesOfStore(organisedData));
   console.log("Month wise sale : ");
   printMonthWiseFormatData(getMonthWiseSales(organisedData));
-  console.log("Most popular item: ", getMostPopularItem(organisedData));
+  console.log("Most popular item: ");
+  printMonthWiseFormatData(getMostPopularItem(organisedData));
   console.log("monthWiseMostSoldItem: ");
   monthWiseMostSoldItem(organisedData);
   // console.log(salesSummaryforMostPopularItem(organisedData));
@@ -76,7 +77,7 @@ const getMostPopularItem = data => {
   for (key in Object.keys(quantityWiseItem)) {
     quantityWiseItem[key] = getMaxKey(quantityWiseItem[key]);
   }
-  return getMaxKey(quantityWiseItem);
+  return quantityWiseItem;
 };
 
 const monthWiseMostSoldItem = data => {
