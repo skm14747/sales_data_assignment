@@ -26,11 +26,11 @@ getStuff().then(data => {
   console.log("Total Sales of the Store : ", totalSalesOfStore(organisedData));
   console.log("Month wise sale : ");
   printMonthWiseFormatData(getMonthWiseSales(organisedData));
-  console.log("Most popular item: ");
+  console.log("Month wise most popular item: ");
   printMonthWiseFormatData(getMostPopularItem(organisedData));
-  console.log("monthWiseMostSoldItem: ");
+  console.log("Month wise most sold item: ");
   monthWiseMostSoldItem(organisedData);
-  // console.log(salesSummaryforMostPopularItem(organisedData));
+  salesSummaryforMostPopularItem(organisedData);
 });
 
 const totalSalesOfStore = data => {
@@ -153,35 +153,58 @@ const printMonthWiseFormatData = data => {
 
 const salesSummaryforMostPopularItem = data => {
   const mostPopularItems = getMostPopularItem(data);
+
   const min = {};
   const max = {};
   const avg = {};
 
   data.forEach(element => {
-    if (
-      !min[element.date.getMonth()] ||
-      !max[element.date.getMonth()] ||
-      !avg[element.date.getMonth()]
-    ) {
-      min[element.date.getMonth()] = {
-        [element.SKU]: element.quantity
-      };
-      max[element.date.getMonth()] = {
-        [element.SKU]: element.quantity
-      };
-      avg[element.date.getMonth()] = {
-        [element.SKU]: element.quantity,
-        count: 0
-      };
-    } else {
-      if (min[element.date.getMonth()][element.SKU] > element.quantity) {
-        min[element.date.getMonth()][element.SKU] = element.quantity;
-      }
-      if (max[element.date.getMonth()][element.SKU] < element.quantity) {
-        max[element.date.getMonth()][element.SKU] = element.quantity;
+    if (Object.values(mostPopularItems).includes(element.SKU)) {
+      if (
+        !min[element.date.getMonth()] ||
+        !max[element.date.getMonth()] ||
+        !avg[element.date.getMonth()]
+      ) {
+        min[element.date.getMonth()] = {
+          [element.SKU]: parseInt(element.quantity)
+        };
+        max[element.date.getMonth()] = {
+          [element.SKU]: parseInt(element.quantity)
+        };
+        avg[element.date.getMonth()] = {
+          [element.SKU]: parseInt(element.quantity),
+          count: 1
+        };
+      } else {
+        if (min[element.date.getMonth()][element.SKU] > element.quantity) {
+          min[element.date.getMonth()][element.SKU] = parseInt(
+            element.quantity
+          );
+        }
+        if (
+          max[element.date.getMonth()][element.SKU] < parseInt(element.quantity)
+        ) {
+          max[element.date.getMonth()][element.SKU] = parseInt(
+            element.quantity
+          );
+        }
+        avg[element.date.getMonth()][element.SKU] += parseInt(element.quantity);
+        avg[element.date.getMonth()].count += 1;
       }
     }
   });
 
-  return { min, max };
+  for (key in Object.keys(avg)) {
+    avg[key] = {
+      [mostPopularItems[key]]: avg[key][mostPopularItems[key]] / avg[key].count
+    };
+  }
+  console.log("Minimum of month wise most popular item");
+  printMonthWiseFormatData(min);
+
+  console.log("Maximum of month wise most popular item");
+  printMonthWiseFormatData(max);
+
+  console.log("Average of month wise most popular item");
+  printMonthWiseFormatData(avg);
 };
