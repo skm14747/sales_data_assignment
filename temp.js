@@ -23,11 +23,13 @@ getStuff().then(data => {
         totalSales: data[4].trim()
       };
     });
-  // console.log("Total Sales of the Store : ", totalSalesOfStore(organisedData));
-  // console.log("Month wise sale : ", getMonthWiseSales(organisedData));
-  // console.log("Most popular item: ", getMostPopularItem(organisedData));
-  // console.log("monthWiseMostSoldItem: ", monthWiseMostSoldItem(organisedData));
-  console.log(salesSummaryforMostPopularItem(organisedData));
+  console.log("Total Sales of the Store : ", totalSalesOfStore(organisedData));
+  console.log("Month wise sale : ");
+  printMonthWiseFormatData(getMonthWiseSales(organisedData));
+  console.log("Most popular item: ", getMostPopularItem(organisedData));
+  console.log("monthWiseMostSoldItem: ");
+  monthWiseMostSoldItem(organisedData);
+  // console.log(salesSummaryforMostPopularItem(organisedData));
 });
 
 const totalSalesOfStore = data => {
@@ -48,18 +50,33 @@ const getMonthWiseSales = data => {
         monthlySales[element.date.getMonth()] + parseInt(element.totalSales);
   });
   return monthlySales;
+  // printMonthWiseFormatData(monthlySales);
 };
 
 const getMostPopularItem = data => {
   const quantityWiseItem = {};
   data.forEach(element => {
-    if (!quantityWiseItem[element.SKU])
-      quantityWiseItem[element.SKU] = parseInt(element.quantity);
-    else
-      quantityWiseItem[element.SKU] =
-        quantityWiseItem[element.SKU] + parseInt(element.quantity);
+    if (!quantityWiseItem[element.date.getMonth()]) {
+      quantityWiseItem[element.date.getMonth()] = {};
+      quantityWiseItem[element.date.getMonth()][element.SKU] = parseInt(
+        element.quantity
+      );
+    } else {
+      if (!quantityWiseItem[element.date.getMonth()][element.SKU]) {
+        quantityWiseItem[element.date.getMonth()][element.SKU] = parseInt(
+          element.quantity
+        );
+      } else {
+        quantityWiseItem[element.date.getMonth()][element.SKU] =
+          quantityWiseItem[element.date.getMonth()][element.SKU] +
+          parseInt(element.quantity);
+      }
+    }
   });
-  return quantityWiseItem;
+  for (key in Object.keys(quantityWiseItem)) {
+    quantityWiseItem[key] = getMaxKey(quantityWiseItem[key]);
+  }
+  return getMaxKey(quantityWiseItem);
 };
 
 const monthWiseMostSoldItem = data => {
@@ -82,7 +99,55 @@ const monthWiseMostSoldItem = data => {
       }
     }
   });
-  return monthlySoldProduct;
+  for (key in Object.keys(monthlySoldProduct)) {
+    monthlySoldProduct[key] = getMaxKey(monthlySoldProduct[key]);
+  }
+  // return printMonthWiseData(monthlySoldProduct);
+  printMonthWiseFormatData(monthlySoldProduct);
+};
+
+const getMaxKey = data => {
+  return Object.keys(data).reduce((a, b) => (data[a] > data[b] ? a : b));
+};
+
+const getMonthWiseFormatData = data => {
+  const monthWiseFormat = {};
+  for (key in Object.keys(data)) {
+    switch (key) {
+      case "0":
+        monthWiseFormat["January"] = data[key];
+        break;
+      case "1":
+        monthWiseFormat["February"] = data[key];
+        break;
+      case "2":
+        monthWiseFormat["March"] = data[key];
+        break;
+
+      default:
+        break;
+    }
+  }
+  return monthWiseFormat;
+};
+
+const printMonthWiseFormatData = data => {
+  for (key in Object.keys(data)) {
+    switch (key) {
+      case "0":
+        console.log("January : ", data[key]);
+        break;
+      case "1":
+        console.log("February : ", data[key]);
+        break;
+      case "2":
+        console.log("March : ", data[key]);
+        break;
+
+      default:
+        break;
+    }
+  }
 };
 
 const salesSummaryforMostPopularItem = data => {
@@ -90,8 +155,6 @@ const salesSummaryforMostPopularItem = data => {
   const min = {};
   const max = {};
   const avg = {};
-
-  
 
   data.forEach(element => {
     if (
@@ -107,13 +170,17 @@ const salesSummaryforMostPopularItem = data => {
       };
       avg[element.date.getMonth()] = {
         [element.SKU]: element.quantity,
-        count : 0
+        count: 0
       };
-    }
-    else{
-      if(min[element.date.getMonth()][element.SKU]>element.)
+    } else {
+      if (min[element.date.getMonth()][element.SKU] > element.quantity) {
+        min[element.date.getMonth()][element.SKU] = element.quantity;
+      }
+      if (max[element.date.getMonth()][element.SKU] < element.quantity) {
+        max[element.date.getMonth()][element.SKU] = element.quantity;
+      }
     }
   });
 
-  return min;
+  return { min, max };
 };
